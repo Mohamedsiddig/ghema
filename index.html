@@ -151,16 +151,16 @@
                 <div class="payment-method" data-method="cod"><i class="fas fa-truck"></i><div class="payment-method-info"><strong>الدفع عند الاستلام </strong><span>نقداً عند التوصيل</span></div><i class="fas fa-chevron-left"></i></div>
             </div>
             <div id="proofUploadSection" class="proof-card">
-                <div id="bankDetailsMessage" class="bank-details"></div>
-                <div class="form-group">
-                    <label>📌 بيانات التحويل / فوري:</label>
-                    <textarea id="bankTransferNote" rows="2" placeholder="سيتم عرض تفاصيل الحساب حسب البنك المختار"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>📎 إرفاق إشعار التحويل (للتأكيد):</label>
-                    <input type="file" id="transferProofImage" accept="image/*" capture>
-                </div>
-            </div>
+    <div id="bankDetailsMessage" class="bank-details"></div>
+    <div class="form-group">
+        <label>📌 بيانات التحويل / فوري:</label>
+        <textarea id="bankTransferNote" rows="2" placeholder="سيتم عرض تفاصيل الحساب حسب البنك المختار"></textarea>
+    </div>
+    <div class="form-group">
+        <label>📎 إرفاق إشعار التحويل (للتأكيد):</label>
+        <input type="file" id="transferProofImage" accept="image/*">
+    </div>
+</div>
         </div>
         <div class="modal-footer"><button id="confirmPaymentBtn" class="btn-primary">تأكيد الدفع وإنشاء الطلب</button><button class="btn-secondary" onclick="closeModal('paymentModal')">إلغاء</button></div>
     </div>
