@@ -10,6 +10,7 @@ let pendingRecipientData = null;
 let gpsLocation = { lat: null, lng: null };
 let clickCount = 0;
 let clickTimer = null;
+let isLocating = false;
 
 function loadData() {
     const savedProducts = localStorage.getItem("ghaima_products");
@@ -221,30 +222,94 @@ document.getElementById("submitReviewBtn")?.addEventListener("click", () => {
     document.querySelectorAll('.stars-input i').forEach(s => { s.classList.remove('active', 'fas'); s.classList.add('far'); s.style.color = '#ddd'; });
 });
 
-// ============ نظام الدفع ============
+// ============ نظام تحديد الموقع GPS ============
 function getCurrentLocation() {
     const statusDiv = document.getElementById("gpsStatus");
+    const gpsBtn = document.getElementById("getGpsBtn");
+    const openMapBtn = document.getElementById("openMapBtn");
+    
     if (!statusDiv) return;
-    statusDiv.innerHTML = "⏳ جاري تحديد الموقع...";
-    if (!navigator.geolocation) { 
-        statusDiv.innerHTML = "❌ متصفحك لا يدعم تحديد الموقع"; 
-        return; 
+    
+    if (!navigator.geolocation) {
+        statusDiv.innerHTML = "❌ متصفحك لا يدعم تحديد الموقع";
+        statusDiv.style.color = "#dc3545";
+        return;
     }
+    
+    if (isLocating) {
+        showToast("جاري تحديد الموقع بالفعل...", "info");
+        return;
+    }
+    
+    isLocating = true;
+    if (gpsBtn) gpsBtn.disabled = true;
+    statusDiv.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> جاري تحديد الموقع...';
+    statusDiv.style.color = "#2c7da0";
+    
+    const options = { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 };
+    
     navigator.geolocation.getCurrentPosition(
-        (position) => {
+        function(position) {
             gpsLocation.lat = position.coords.latitude;
             gpsLocation.lng = position.coords.longitude;
+            
             document.getElementById("gpsLat").value = gpsLocation.lat;
             document.getElementById("gpsLng").value = gpsLocation.lng;
-            statusDiv.innerHTML = `✅ تم تحديد موقعك: ${gpsLocation.lat.toFixed(6)}, ${gpsLocation.lng.toFixed(6)}`;
-            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${gpsLocation.lat}&lon=${gpsLocation.lng}`)
-                .then(res => res.json()).then(data => { 
-                    if (data.display_name && document.getElementById("recipientAddress")) 
-                        document.getElementById("recipientAddress").value = data.display_name.substring(0, 200); 
-                }).catch(() => {});
+            
+            statusDiv.innerHTML = `<i class="fas fa-check-circle"></i> ✅ تم تحديد موقعك: ${gpsLocation.lat.toFixed(6)}, ${gpsLocation.lng.toFixed(6)}`;
+            statusDiv.style.color = "#28a745";
+            
+            if (openMapBtn) openMapBtn.style.display = "inline-flex";
+            
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${gpsLocation.lat}&lon=${gpsLocation.lng}&zoom=18&addressdetails=1`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.display_name) {
+                        const addressField = document.getElementById("recipientAddress");
+                        if (addressField) addressField.value = data.display_name.substring(0, 200);
+                        showToast("تم تعبئة العنوان تلقائياً", "success");
+                    }
+                })
+                .catch(() => {});
+            
+            showToast("تم تحديد موقعك بنجاح!", "success");
+            isLocating = false;
+            if (gpsBtn) gpsBtn.disabled = false;
         },
-        () => { statusDiv.innerHTML = "❌ فشل تحديد الموقع"; }
+        function(error) {
+            let errorMessage = "";
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    errorMessage = "❌ تم رفض الوصول إلى الموقع. الرجاء السماح بالوصول";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    errorMessage = "❌ معلومات الموقع غير متاحة حالياً";
+                    break;
+                case error.TIMEOUT:
+                    errorMessage = "❌ انتهت مهلة تحديد الموقع. حاول مرة أخرى";
+                    break;
+                default:
+                    errorMessage = "❌ حدث خطأ في تحديد الموقع";
+                    break;
+            }
+            statusDiv.innerHTML = errorMessage;
+            statusDiv.style.color = "#dc3545";
+            showToast(errorMessage, "error");
+            isLocating = false;
+            if (gpsBtn) gpsBtn.disabled = false;
+        },
+        options
     );
+}
+
+function openMapManual() {
+    const lat = document.getElementById("gpsLat").value;
+    const lng = document.getElementById("gpsLng").value;
+    if (lat && lng) {
+        window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank');
+    } else {
+        showToast("الرجاء تحديد الموقع أولاً", "error");
+    }
 }
 
 function openRecipientModal() {
@@ -252,8 +317,7 @@ function openRecipientModal() {
         showToast("السلة فارغة!", "error"); 
         return; 
     }
-    const modal = document.getElementById("recipientModal");
-    if (modal) modal.classList.add("active");
+    document.getElementById("recipientModal").classList.add("active");
 }
 
 function proceedToPayment() {
@@ -262,43 +326,52 @@ function proceedToPayment() {
     const address = document.getElementById("recipientAddress").value.trim();
     const lat = document.getElementById("gpsLat").value;
     const lng = document.getElementById("gpsLng").value;
-    if (!fullName) { showToast("يرجى إدخال الاسم", "error"); return; }
-    if (!phone) { showToast("يرجى إدخال رقم الهاتف", "error"); return; }
-    if (!address) { showToast("يرجى إدخال العنوان", "error"); return; }
-    if (!lat || !lng) { showToast("يرجى تحديد موقع GPS", "error"); return; }
+    
+    if (!fullName) { 
+        showToast("يرجى إدخال الاسم الكامل", "error"); 
+        document.getElementById("recipientFullName").focus();
+        return; 
+    }
+    if (!phone) { 
+        showToast("يرجى إدخال رقم الهاتف", "error"); 
+        document.getElementById("recipientPhone").focus();
+        return; 
+    }
+    if (!address) { 
+        showToast("يرجى إدخال العنوان التفصيلي", "error"); 
+        document.getElementById("recipientAddress").focus();
+        return; 
+    }
+    if (!lat || !lng) { 
+        showToast("يرجى تحديد موقعك عبر GPS أولاً (اضغط على زر تحديد موقعي الحالي)", "error"); 
+        return; 
+    }
+    
     pendingRecipientData = { 
-        fullName, phone, 
+        fullName: fullName,
+        phone: phone, 
         email: document.getElementById("recipientEmail").value, 
-        address, gpsLat: lat, gpsLng: lng, 
+        address: address, 
+        gpsLat: parseFloat(lat), 
+        gpsLng: parseFloat(lng), 
         notes: document.getElementById("recipientNotes").value 
     };
+    
     closeModal('recipientModal');
     openPaymentModal();
 }
 
 function openPaymentModal() {
     const paymentModal = document.getElementById("paymentModal");
-    if (!paymentModal) {
-        console.error("paymentModal not found");
-        return;
-    }
+    if (!paymentModal) return;
     
     selectedPaymentMethod = "fawry_khartoum";
-    
-    const paymentMethods = document.querySelectorAll(".payment-method");
-    if (paymentMethods.length > 0) {
-        paymentMethods.forEach(m => m.classList.remove("selected"));
-        const defaultMethod = document.querySelector('.payment-method[data-method="fawry_khartoum"]');
-        if (defaultMethod) defaultMethod.classList.add("selected");
-    }
-    
+    document.querySelectorAll(".payment-method").forEach(m => m.classList.remove("selected"));
+    const defaultMethod = document.querySelector('.payment-method[data-method="fawry_khartoum"]');
+    if (defaultMethod) defaultMethod.classList.add("selected");
     updateBankDetails("fawry_khartoum");
-    
-    const bankSection = document.getElementById("bankTransferSection");
-    if (bankSection) {
-        bankSection.style.display = "block";
-    }
-    
+    const bankSection = document.getElementById("proofUploadSection");
+    if (bankSection) bankSection.style.display = "block";
     paymentModal.classList.add("active");
 }
 
@@ -331,7 +404,7 @@ function updateBankDetails(method) {
 
 function handlePaymentMethodChange(method) {
     selectedPaymentMethod = method;
-    const bankSection = document.getElementById("bankTransferSection");
+    const bankSection = document.getElementById("proofUploadSection");
     if (bankSection) {
         if (method === "cod") {
             bankSection.style.display = "none";
@@ -403,30 +476,17 @@ async function processOrder() {
 // ============ فتح لوحة التحكم (3 ضغطات على الشعار) ============
 function setupAdminAccess() {
     const logo = document.getElementById("logoTrigger");
-    if (!logo) {
-        console.error("Logo element not found!");
-        return;
-    }
+    if (!logo) return;
     
     logo.addEventListener("click", function(e) {
-        e.stopPropagation();
         clickCount++;
-        console.log("Logo clicked! Count:", clickCount);
-        
         clearTimeout(clickTimer);
-        clickTimer = setTimeout(function() { 
-            clickCount = 0; 
-            console.log("Reset click count");
-        }, 800);
-        
+        clickTimer = setTimeout(function() { clickCount = 0; }, 800);
         if (clickCount === 3) {
             clickCount = 0;
-            console.log("Opening admin panel...");
             window.open('admin.html', '_blank');
         }
     });
-    
-    console.log("Admin access setup complete");
 }
 
 // ============ أحداث ============
@@ -444,6 +504,7 @@ document.getElementById("overlay")?.addEventListener("click", () => {
 });
 document.getElementById("checkoutBtn")?.addEventListener("click", openRecipientModal);
 document.getElementById("getGpsBtn")?.addEventListener("click", getCurrentLocation);
+document.getElementById("openMapBtn")?.addEventListener("click", openMapManual);
 document.getElementById("proceedToPaymentBtn")?.addEventListener("click", proceedToPayment);
 document.getElementById("confirmPaymentBtn")?.addEventListener("click", processOrder);
 

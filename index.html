@@ -113,12 +113,22 @@
     <div class="modal-content">
         <div class="modal-header"><h3><i class="fas fa-map-marker-alt"></i> بيانات التوصيل</h3><button class="modal-close" onclick="closeModal('recipientModal')">&times;</button></div>
         <div class="modal-body">
-            <div class="form-group"><label>الاسم الكامل</label><input type="text" id="recipientFullName"></div>
-            <div class="form-group"><label>رقم الهاتف</label><input type="tel" id="recipientPhone"></div>
-            <div class="form-group"><label>البريد الإلكتروني (اختياري)</label><input type="email" id="recipientEmail"></div>
-            <div class="gps-card"><div class="gps-icon"><i class="fas fa-location-dot"></i></div><div class="gps-content"><h4>تحديد موقع التوصيل</h4><button type="button" id="getGpsBtn" class="btn-gps"><i class="fas fa-crosshairs"></i> تحديد موقعي الحالي</button><div id="gpsStatus" class="gps-status"><i class="fas fa-info-circle"></i> لم يتم تحديد الموقع بعد</div><input type="hidden" id="gpsLat"><input type="hidden" id="gpsLng"></div></div>
-            <div class="form-group"><label>العنوان التفصيلي</label><textarea id="recipientAddress" rows="2"></textarea></div>
-            <div class="form-group"><label>ملاحظات إضافية</label><textarea id="recipientNotes" rows="2"></textarea></div>
+            <div class="form-group"><label>الاسم الكامل</label><input type="text" id="recipientFullName" placeholder="أدخل اسمك الكامل"></div>
+            <div class="form-group"><label>رقم الهاتف</label><input type="tel" id="recipientPhone" placeholder="09xxxxxxxx"></div>
+            <div class="form-group"><label>البريد الإلكتروني (اختياري)</label><input type="email" id="recipientEmail" placeholder="example@mail.com"></div>
+            <div class="gps-card">
+                <div class="gps-icon"><i class="fas fa-location-dot"></i></div>
+                <div class="gps-content">
+                    <h4>تحديد موقع التوصيل</h4>
+                    <button type="button" id="getGpsBtn" class="btn-gps"><i class="fas fa-crosshairs"></i> تحديد موقعي الحالي</button>
+                    <div id="gpsStatus" class="gps-status"><i class="fas fa-info-circle"></i> اضغط على الزر لتحديد موقعك</div>
+                    <button type="button" id="openMapBtn" class="btn-gps" style="background:#6c757d; margin-top:8px; display:none;"><i class="fas fa-map-marked-alt"></i> فتح الموقع على الخريطة</button>
+                    <input type="hidden" id="gpsLat">
+                    <input type="hidden" id="gpsLng">
+                </div>
+            </div>
+            <div class="form-group"><label>العنوان التفصيلي</label><textarea id="recipientAddress" rows="2" placeholder="الحي - الشارع - رقم المبنى"></textarea></div>
+            <div class="form-group"><label>ملاحظات إضافية</label><textarea id="recipientNotes" rows="2" placeholder="تعليمات التوصيل..."></textarea></div>
         </div>
         <div class="modal-footer"><button id="proceedToPaymentBtn" class="btn-primary">متابعة إلى الدفع</button><button class="btn-secondary" onclick="closeModal('recipientModal')">إلغاء</button></div>
     </div>
@@ -129,14 +139,24 @@
         <div class="modal-header"><h3><i class="fas fa-credit-card"></i> طريقة الدفع</h3><button class="modal-close" onclick="closeModal('paymentModal')">&times;</button></div>
         <div class="modal-body">
             <div class="payment-methods">
-                <div class="payment-method" data-method="fawry_khartoum"><i class="fas fa-mobile-alt"></i><div class="payment-method-info"><strong>بنكك -</strong><span>بنك الخرطوم</span></div><i class="fas fa-chevron-left"></i></div>
                 <div class="payment-method" data-method="fawry_faisal"><i class="fas fa-mobile-alt"></i><div class="payment-method-info"><strong>فوري-</strong><span>بنك فيصل الإسلامي</span></div><i class="fas fa-chevron-left"></i></div>
+                <div class="payment-method" data-method="bank_khartoum"><i class="fas fa-university"></i><div class="payment-method-info"><strong>بنكك-</strong><span>بنك الخرطوم</span></div><i class="fas fa-chevron-left"></i></div>
                 <div class="payment-method" data-method="bank_omdurman_okash"><i class="fas fa-wallet"></i><div class="payment-method-info"><strong>اوكاش-</strong><span>بنك أمدرمان</span></div><i class="fas fa-chevron-left"></i></div>
                 <div class="payment-method" data-method="cod"><i class="fas fa-truck"></i><div class="payment-method-info"><strong>الدفع عند الاستلام </strong><span>نقداً عند التوصيل</span></div><i class="fas fa-chevron-left"></i></div>
             </div>
-            <div id="proofUploadSection" class="proof-card"><div id="bankDetailsMessage" class="bank-details"></div><div class="form-group"><label>تفاصيل التحويل</label><textarea id="bankTransferNote" rows="2"></textarea></div><div class="form-group"><label>إرفاق إشعار التحويل</label><input type="file" id="transferProofImage" accept="image/*"></div></div>
+            <div id="proofUploadSection" class="proof-card">
+                <div id="bankDetailsMessage" class="bank-details"></div>
+                <div class="form-group">
+                    <label>📌 بيانات التحويل / فوري:</label>
+                    <textarea id="bankTransferNote" rows="2" placeholder="سيتم عرض تفاصيل الحساب حسب البنك المختار"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>📎 إرفاق إشعار التحويل (للتأكيد):</label>
+                    <input type="file" id="transferProofImage" accept="image/*" capture>
+                </div>
+            </div>
         </div>
-        <div class="modal-footer"><button id="confirmPaymentBtn" class="btn-primary">تأكيد الدفع</button><button class="btn-secondary" onclick="closeModal('paymentModal')">إلغاء</button></div>
+        <div class="modal-footer"><button id="confirmPaymentBtn" class="btn-primary">تأكيد الدفع وإنشاء الطلب</button><button class="btn-secondary" onclick="closeModal('paymentModal')">إلغاء</button></div>
     </div>
 </div>
 

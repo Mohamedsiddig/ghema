@@ -31,35 +31,57 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 0;
+    padding: 12px 0;
 }
 
 .logo {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 1.5rem;
+    gap: 8px;
+    font-size: 1.3rem;
     font-weight: 800;
     background: linear-gradient(135deg, #9b7b5e, #c8b29a);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
     cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 40px;
+    transition: all 0.2s ease;
+}
+
+.logo:hover {
+    background: #f0e8e0;
+    -webkit-background-clip: unset;
+    background-clip: unset;
+    color: #8b694c;
 }
 
 .logo i {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     color: #b28b6b;
     background: none;
 }
 
+.logo span {
+    font-size: 1.1rem;
+}
+
 .mobile-menu-btn {
     display: none;
-    background: none;
+    background: #fff5ed;
     border: none;
-    font-size: 1.5rem;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
     cursor: pointer;
     color: #8b694c;
+    font-size: 1.2rem;
+    transition: all 0.2s ease;
+}
+
+.mobile-menu-btn:hover {
+    background: #e6d5c4;
 }
 
 .header-actions {
@@ -71,8 +93,8 @@ body {
     position: relative;
     background: #fff5ed;
     border: none;
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     cursor: pointer;
     transition: 0.2s;
@@ -1134,7 +1156,6 @@ code {
 
 /* ============ Responsive Design ============ */
 
-/* للأجهزة المتوسطة (تابلت) */
 @media (max-width: 1024px) {
     .hero-text h1 { font-size: 2.5rem; }
     .hero-image i { font-size: 8rem; }
@@ -1142,48 +1163,59 @@ code {
     .admin-stats { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* للأجهزة اللوحية الصغيرة */
 @media (max-width: 768px) {
     .container { padding: 0 16px; }
     
-    /* Header */
     .mobile-menu-btn { display: block; }
-    .logo span { display: none; }
-    .logo i { font-size: 1.8rem; }
     
-    /* Hero */
+    .logo {
+        order: 2;
+        margin: 0 auto;
+    }
+    
+    .mobile-menu-btn {
+        order: 1;
+    }
+    
+    .header-actions {
+        order: 3;
+    }
+    
+    .logo span {
+        display: inline-block;
+        font-size: 0.9rem;
+    }
+    
+    .logo i {
+        font-size: 1.3rem;
+    }
+    
     .hero { padding: 40px 0; }
     .hero-content { flex-direction: column; text-align: center; }
     .hero-text h1 { font-size: 1.8rem; }
     .hero-stats { justify-content: center; }
     .hero-image i { font-size: 5rem; }
     
-    /* Sections */
     .section-header h2 { font-size: 1.5rem; }
     .categories { gap: 8px; }
     .cat-btn { padding: 8px 16px; font-size: 0.8rem; }
     
-    /* Products */
     .products-grid { grid-template-columns: 1fr; gap: 16px; }
     .product-title { height: auto; }
     .product-price { font-size: 1.2rem; }
     .add-to-cart { padding: 10px; font-size: 0.8rem; }
     
-    /* Reviews */
     .add-review-card { padding: 20px; margin: 20px; }
     .stars-input i { font-size: 1.4rem; }
     .rating-input { flex-direction: column; align-items: flex-start; }
     
-    /* Cart */
     .cart-sidebar { max-width: 100%; }
     
-    /* Admin */
     .admin-stats { grid-template-columns: 1fr; gap: 12px; }
     .admin-tabs { gap: 8px; }
     .admin-tab { padding: 8px 16px; font-size: 0.8rem; }
     .admin-content { padding: 16px; }
     
-    /* Tables */
     .products-table,
     .categories-table,
     .orders-table table {
@@ -1193,23 +1225,18 @@ code {
     .btn-sm { padding: 4px 8px; font-size: 0.7rem; }
     .stat-number { font-size: 1.5rem; }
     
-    /* Modals */
     .modal-content { width: 95%; padding: 20px; }
     .modal-footer { flex-direction: column; }
     .modal-footer button { width: 100%; }
     
-    /* Payment */
     .payment-method { padding: 12px; }
     .payment-method-info strong { font-size: 0.9rem; }
     .gps-card { flex-direction: column; text-align: center; }
     
-    /* Footer */
     .footer-content { grid-template-columns: 1fr; text-align: center; gap: 30px; }
     .footer-logo { justify-content: center; }
-    .social-links { justify-content: center; }
 }
 
-/* للهواتف الصغيرة */
 @media (max-width: 480px) {
     .hero-text h1 { font-size: 1.5rem; }
     .hero-stat span { font-size: 0.8rem; }
@@ -1257,13 +1284,11 @@ code {
     .status-badge { padding: 3px 8px; font-size: 0.65rem; }
 }
 
-/* للهواتف الكبيرة */
 @media (min-width: 481px) and (max-width: 768px) {
     .products-grid { grid-template-columns: repeat(2, 1fr); }
     .admin-stats { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* للشاشات الكبيرة */
 @media (min-width: 1400px) {
     .container { max-width: 1400px; }
     .products-grid { grid-template-columns: repeat(4, 1fr); }
