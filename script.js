@@ -242,11 +242,18 @@ function getCurrentLocation() {
     }
     
     isLocating = true;
-    if (gpsBtn) gpsBtn.disabled = true;
-    statusDiv.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> جاري تحديد الموقع...';
+    if (gpsBtn) {
+        gpsBtn.disabled = true;
+        gpsBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> جاري التحديد...';
+    }
+    statusDiv.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> جاري تحديد الموقع... يرجى الانتظار (قد يستغرق 30 ثانية)';
     statusDiv.style.color = "#2c7da0";
     
-    const options = { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 };
+    const options = {
+        enableHighAccuracy: true,
+        timeout: 30000,
+        maximumAge: 0
+    };
     
     navigator.geolocation.getCurrentPosition(
         function(position) {
@@ -266,40 +273,67 @@ function getCurrentLocation() {
                 .then(data => {
                     if (data.display_name) {
                         const addressField = document.getElementById("recipientAddress");
-                        if (addressField) addressField.value = data.display_name.substring(0, 200);
-                        showToast("تم تعبئة العنوان تلقائياً", "success");
+                        if (addressField) {
+                            addressField.value = data.display_name.substring(0, 200);
+                            showToast("تم تعبئة العنوان تلقائياً", "success");
+                        }
                     }
                 })
                 .catch(() => {});
             
             showToast("تم تحديد موقعك بنجاح!", "success");
             isLocating = false;
-            if (gpsBtn) gpsBtn.disabled = false;
+            if (gpsBtn) {
+                gpsBtn.disabled = false;
+                gpsBtn.innerHTML = '<i class="fas fa-crosshairs"></i> تحديد موقعي الحالي';
+            }
         },
         function(error) {
             let errorMessage = "";
+            let userMessage = "";
             switch(error.code) {
                 case error.PERMISSION_DENIED:
-                    errorMessage = "❌ تم رفض الوصول إلى الموقع. الرجاء السماح بالوصول";
+                    errorMessage = "❌ تم رفض الوصول إلى الموقع";
+                    userMessage = "الرجاء السماح بالوصول إلى الموقع من إعدادات المتصفح";
                     break;
                 case error.POSITION_UNAVAILABLE:
                     errorMessage = "❌ معلومات الموقع غير متاحة حالياً";
+                    userMessage = "تأكد من تشغيل GPS وحاول مرة أخرى في مكان مفتوح";
                     break;
                 case error.TIMEOUT:
-                    errorMessage = "❌ انتهت مهلة تحديد الموقع. حاول مرة أخرى";
+                    errorMessage = "❌ انتهت مهلة تحديد الموقع";
+                    userMessage = "الموقع بطيء، حاول مرة أخرى أو أدخل العنوان يدوياً";
                     break;
                 default:
                     errorMessage = "❌ حدث خطأ في تحديد الموقع";
+                    userMessage = "يرجى المحاولة مرة أخرى أو إدخال العنوان يدوياً";
                     break;
             }
-            statusDiv.innerHTML = errorMessage;
+            statusDiv.innerHTML = `${errorMessage}<br><small style="font-size:0.7rem;">${userMessage}</small>`;
             statusDiv.style.color = "#dc3545";
-            showToast(errorMessage, "error");
+            showToast(userMessage, "error");
             isLocating = false;
-            if (gpsBtn) gpsBtn.disabled = false;
+            if (gpsBtn) {
+                gpsBtn.disabled = false;
+                gpsBtn.innerHTML = '<i class="fas fa-crosshairs"></i> تحديد موقعي الحالي';
+            }
         },
         options
     );
+    
+    setTimeout(function() {
+        if (isLocating) {
+            isLocating = false;
+            if (gpsBtn) {
+                gpsBtn.disabled = false;
+                gpsBtn.innerHTML = '<i class="fas fa-crosshairs"></i> تحديد موقعي الحالي';
+            }
+            if (statusDiv.innerHTML.includes("جاري")) {
+                statusDiv.innerHTML = "⚠️ استغرقت العملية وقتاً طويلاً. حاول مرة أخرى أو أدخل العنوان يدوياً";
+                statusDiv.style.color = "#ffc107";
+            }
+        }
+    }, 35000);
 }
 
 function openMapManual() {
@@ -309,6 +343,15 @@ function openMapManual() {
         window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank');
     } else {
         showToast("الرجاء تحديد الموقع أولاً", "error");
+    }
+}
+
+// ============ إدخال العنوان يدوياً ============
+function manualAddressEntry() {
+    const address = prompt("أدخل عنوان التوصيل التفصيلي:");
+    if (address && address.trim()) {
+        document.getElementById("recipientAddress").value = address.trim();
+        showToast("تم إدخال العنوان يدوياً", "success");
     }
 }
 
@@ -380,11 +423,7 @@ function updateBankDetails(method) {
     const noteField = document.getElementById("bankTransferNote");
     if (!detailsDiv) return;
     
-    if (method === "fawry_khartoum") { 
-        detailsDiv.innerHTML = "🔹 فوري - بنك الخرطوم: 19623 | الحساب 100123456789"; 
-        if (noteField) noteField.value = "دفع عبر فوري - الرقم: ********"; 
-    }
-    else if (method === "fawry_faisal") { 
+     if (method === "fawry_faisal") { 
         detailsDiv.innerHTML = "🔹 فوري - بنك فيصل الإسلامي: 7788990011"; 
         if (noteField) noteField.value = "دفع عبر فوري فيصل - كود: ********"; 
     }
@@ -434,10 +473,9 @@ async function processOrder() {
     const itemsList = cart.map(i => `${i.name} (×${i.quantity})`).join(', ');
     let methodName = "", orderStatus = "";
     switch(selectedPaymentMethod) {
-        case "fawry_khartoum": methodName = "فوري - بنك الخرطوم"; orderStatus = "تم الدفع عبر فوري"; break;
         case "fawry_faisal": methodName = "فوري - بنك فيصل الإسلامي"; orderStatus = "تم الدفع عبر فوري فيصل"; break;
-        case "bank_khartoum": methodName = "تحويل بنكي - بنك الخرطوم"; orderStatus = "بانتظار المراجعة"; break;
-        case "bank_omdurman_okash": methodName = "بنك أمدرمان - OKash"; orderStatus = "تم الدفع عبر OKash"; break;
+        case "bank_khartoum": methodName = "بنكك - بنك الخرطوم"; orderStatus = "بانتظار المراجعة"; break;
+        case "bank_omdurman_okash": methodName = "بنك أمدرمان - اوكاش"; orderStatus = "تم الدفع عبر OKash"; break;
         case "cod": methodName = "الدفع عند الاستلام"; orderStatus = "سيتم الدفع عند التوصيل"; break;
         default: methodName = "تحويل بنكي"; orderStatus = "تم الطلب";
     }
