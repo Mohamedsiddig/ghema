@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>متجر غيمة | تصاميم دعوات فاخرة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="header">
+    <div class="container">
+        <div class="header-content">
+            <div class="logo" id="logoTrigger">
+                <i class="fas fa-cloud-moon"></i>
+                <span>متجر غيمة</span>
+            </div>
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="header-actions">
+                <button class="cart-btn" id="cartIconBtn">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="cart-badge" id="cartCount">0</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<main>
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1>تصاميم دعوات <span class="highlight">فاخرة</span></h1>
+                    <p>لحظاتك تستحق الأفضل - تشكيلة مميزة من تصاميم الدعوات لجميع مناسباتك</p>
+                    <div class="hero-stats">
+                        <div class="hero-stat"><i class="fas fa-award"></i><span>منتجات حصرية</span></div>
+                        <div class="hero-stat"><i class="fas fa-truck"></i><span>توصيل سريع</span></div>
+                        <div class="hero-stat"><i class="fas fa-shield-alt"></i><span>دفع آمن</span></div>
+                    </div>
+                </div>
+                <div class="hero-image"><i class="fas fa-cloud-moon"></i></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="categories-section">
+        <div class="container">
+            <div class="section-header">
+                <h2><i class="fas fa-tags"></i> تصفح حسب التصنيف</h2>
+                <p>اختر التصميم الذي يناسب مناسبتك</p>
+            </div>
+            <div class="categories" id="categoriesContainer"></div>
+        </div>
+    </section>
+
+    <section class="products-section">
+        <div class="container">
+            <div class="section-header">
+                <h2><i class="fas fa-gift"></i> منتجاتنا</h2>
+                <p>أحدث التصاميم بأسعار تنافسية</p>
+            </div>
+            <div class="products-grid" id="productsGrid"></div>
+        </div>
+    </section>
+
+    <section class="reviews-section">
+        <div class="container">
+            <div class="section-header">
+                <h2><i class="fas fa-star"></i> آراء عملائنا</h2>
+                <p>ما يقوله العملاء عن خدماتنا</p>
+            </div>
+            <div class="reviews-container" id="reviewsList"></div>
+            <div class="add-review-card">
+                <h3><i class="fas fa-pen-fancy"></i> أضف تقييمك</h3>
+                <div class="rating-input">
+                    <span>تقييمك:</span>
+                    <div class="stars-input" id="starRating">
+                        <i class="far fa-star" data-value="1"></i>
+                        <i class="far fa-star" data-value="2"></i>
+                        <i class="far fa-star" data-value="3"></i>
+                        <i class="far fa-star" data-value="4"></i>
+                        <i class="far fa-star" data-value="5"></i>
+                    </div>
+                    <input type="hidden" id="selectedStars" value="0">
+                </div>
+                <div class="review-input-group"><i class="fas fa-user"></i><input type="text" id="reviewerName" placeholder="اسمك"></div>
+                <div class="review-input-group"><i class="fas fa-comment"></i><textarea id="reviewComment" rows="2" placeholder="شاركنا رأيك في التصاميم..."></textarea></div>
+                <button id="submitReviewBtn" class="btn-primary"><i class="fas fa-paper-plane"></i> إرسال التقييم</button>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section"><div class="footer-logo"><i class="fas fa-cloud-moon"></i><span>متجر غيمة</span></div><p>نقدم أجمل تصاميم الدعوات لجميع مناسباتك</p></div>
+            <div class="footer-section"><h4>روابط سريعة</h4><ul><li><a href="#">الرئيسية</a></li><li><a href="#">منتجاتنا</a></li><li><a href="#">اتصل بنا</a></li></ul></div>
+            <div class="footer-section"><h4>طرق الدفع</h4><ul><li><i class="fas fa-university"></i> تحويل بنكي</li><li><i class="fas fa-mobile-alt"></i> فوري</li><li><i class="fas fa-wallet"></i> OKash</li><li><i class="fas fa-truck"></i> دفع عند الاستلام</li></ul></div>
+            <div class="footer-section"><h4>تواصل معنا</h4><ul><li><i class="fab fa-whatsapp"></i> +249 123 456 789</li><li><i class="fas fa-envelope"></i> info@ghaima.com</li></ul></div>
+        </div>
+        <div class="footer-bottom"><p>&copy; 2024 متجر غيمة - جميع الحقوق محفوظة</p></div>
+    </div>
+</footer>
+
+<!-- Modals -->
+<div class="modal" id="recipientModal">
+    <div class="modal-content">
+        <div class="modal-header"><h3><i class="fas fa-map-marker-alt"></i> بيانات التوصيل</h3><button class="modal-close" onclick="closeModal('recipientModal')">&times;</button></div>
+        <div class="modal-body">
+            <div class="form-group"><label>الاسم الكامل</label><input type="text" id="recipientFullName"></div>
+            <div class="form-group"><label>رقم الهاتف</label><input type="tel" id="recipientPhone"></div>
+            <div class="form-group"><label>البريد الإلكتروني (اختياري)</label><input type="email" id="recipientEmail"></div>
+            <div class="gps-card"><div class="gps-icon"><i class="fas fa-location-dot"></i></div><div class="gps-content"><h4>تحديد موقع التوصيل</h4><button type="button" id="getGpsBtn" class="btn-gps"><i class="fas fa-crosshairs"></i> تحديد موقعي الحالي</button><div id="gpsStatus" class="gps-status"><i class="fas fa-info-circle"></i> لم يتم تحديد الموقع بعد</div><input type="hidden" id="gpsLat"><input type="hidden" id="gpsLng"></div></div>
+            <div class="form-group"><label>العنوان التفصيلي</label><textarea id="recipientAddress" rows="2"></textarea></div>
+            <div class="form-group"><label>ملاحظات إضافية</label><textarea id="recipientNotes" rows="2"></textarea></div>
+        </div>
+        <div class="modal-footer"><button id="proceedToPaymentBtn" class="btn-primary">متابعة إلى الدفع</button><button class="btn-secondary" onclick="closeModal('recipientModal')">إلغاء</button></div>
+    </div>
+</div>
+
+<div class="modal" id="paymentModal">
+    <div class="modal-content">
+        <div class="modal-header"><h3><i class="fas fa-credit-card"></i> طريقة الدفع</h3><button class="modal-close" onclick="closeModal('paymentModal')">&times;</button></div>
+        <div class="modal-body">
+            <div class="payment-methods">
+                <div class="payment-method" data-method="fawry_khartoum"><i class="fas fa-mobile-alt"></i><div class="payment-method-info"><strong>بنكك -</strong><span>بنك الخرطوم</span></div><i class="fas fa-chevron-left"></i></div>
+                <div class="payment-method" data-method="fawry_faisal"><i class="fas fa-mobile-alt"></i><div class="payment-method-info"><strong>فوري-</strong><span>بنك فيصل الإسلامي</span></div><i class="fas fa-chevron-left"></i></div>
+                <div class="payment-method" data-method="bank_omdurman_okash"><i class="fas fa-wallet"></i><div class="payment-method-info"><strong>اوكاش-</strong><span>بنك أمدرمان</span></div><i class="fas fa-chevron-left"></i></div>
+                <div class="payment-method" data-method="cod"><i class="fas fa-truck"></i><div class="payment-method-info"><strong>الدفع عند الاستلام </strong><span>نقداً عند التوصيل</span></div><i class="fas fa-chevron-left"></i></div>
+            </div>
+            <div id="proofUploadSection" class="proof-card"><div id="bankDetailsMessage" class="bank-details"></div><div class="form-group"><label>تفاصيل التحويل</label><textarea id="bankTransferNote" rows="2"></textarea></div><div class="form-group"><label>إرفاق إشعار التحويل</label><input type="file" id="transferProofImage" accept="image/*"></div></div>
+        </div>
+        <div class="modal-footer"><button id="confirmPaymentBtn" class="btn-primary">تأكيد الدفع</button><button class="btn-secondary" onclick="closeModal('paymentModal')">إلغاء</button></div>
+    </div>
+</div>
+
+<div class="cart-sidebar" id="cartSidebar">
+    <div class="cart-header"><h3><i class="fas fa-shopping-bag"></i> سلة المشتريات</h3><button id="closeCartBtn"><i class="fas fa-times"></i></button></div>
+    <div class="cart-items" id="cartItemsList"></div>
+    <div class="cart-footer"><div class="cart-total" id="cartTotalPrice"></div><button class="checkout-btn" id="checkoutBtn"><i class="fas fa-credit-card"></i> إتمام الدفع</button></div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="toast" id="toast"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
