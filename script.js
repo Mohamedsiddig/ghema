@@ -346,7 +346,6 @@ function openMapManual() {
     }
 }
 
-// ============ إدخال العنوان يدوياً ============
 function manualAddressEntry() {
     const address = prompt("أدخل عنوان التوصيل التفصيلي:");
     if (address && address.trim()) {
@@ -385,9 +384,9 @@ function proceedToPayment() {
         document.getElementById("recipientAddress").focus();
         return; 
     }
-    if (!lat || !lng) { 
-        showToast("يرجى تحديد موقعك عبر GPS أولاً (اضغط على زر تحديد موقعي الحالي)", "error"); 
-        return; 
+    
+    if (!lat || !lng) {
+        showToast("⚠️ لم يتم تحديد الموقع عبر GPS. سيتم استخدام العنوان المدخل للتوصيل.", "warning");
     }
     
     pendingRecipientData = { 
@@ -395,8 +394,8 @@ function proceedToPayment() {
         phone: phone, 
         email: document.getElementById("recipientEmail").value, 
         address: address, 
-        gpsLat: parseFloat(lat), 
-        gpsLng: parseFloat(lng), 
+        gpsLat: lat ? parseFloat(lat) : null, 
+        gpsLng: lng ? parseFloat(lng) : null, 
         notes: document.getElementById("recipientNotes").value 
     };
     
@@ -422,17 +421,16 @@ function updateBankDetails(method) {
     const detailsDiv = document.getElementById("bankDetailsMessage");
     const noteField = document.getElementById("bankTransferNote");
     if (!detailsDiv) return;
-    
      if (method === "fawry_faisal") { 
-        detailsDiv.innerHTML = "🔹 فوري - بنك فيصل الإسلامي: 7788990011"; 
+        detailsDiv.innerHTML = "🏦 فوري - بنك فيصل الإسلامي: 7788990011"; 
         if (noteField) noteField.value = "دفع عبر فوري فيصل - كود: ********"; 
     }
     else if (method === "bank_khartoum") { 
-        detailsDiv.innerHTML = "🏦 تحويل بنكي - بنك الخرطوم: 0123456789 | IBAN: SDNKH123456789"; 
+        detailsDiv.innerHTML = "🏦 بنكك  - بنك الخرطوم: 0123456789 | IBAN: SDNKH123456789"; 
         if (noteField) noteField.value = "تحويل بنك الخرطوم"; 
     }
     else if (method === "bank_omdurman_okash") { 
-        detailsDiv.innerHTML = "📱 OKash: 0923456789"; 
+        detailsDiv.innerHTML = "🏦 اوكاش: 0923456789"; 
         if (noteField) noteField.value = "دفع عبر OKash"; 
     }
     else if (method === "cod") { 
@@ -474,8 +472,8 @@ async function processOrder() {
     let methodName = "", orderStatus = "";
     switch(selectedPaymentMethod) {
         case "fawry_faisal": methodName = "فوري - بنك فيصل الإسلامي"; orderStatus = "تم الدفع عبر فوري فيصل"; break;
-        case "bank_khartoum": methodName = "بنكك - بنك الخرطوم"; orderStatus = "بانتظار المراجعة"; break;
-        case "bank_omdurman_okash": methodName = "بنك أمدرمان - اوكاش"; orderStatus = "تم الدفع عبر OKash"; break;
+        case "bank_khartoum": methodName = " بنكك - بنك الخرطوم"; orderStatus = "بانتظار المراجعة"; break;
+        case "bank_omdurman_okash": methodName = "بنك أمدرمان - اوكاش"; orderStatus = "تم الدفع عبر اوكاش"; break;
         case "cod": methodName = "الدفع عند الاستلام"; orderStatus = "سيتم الدفع عند التوصيل"; break;
         default: methodName = "تحويل بنكي"; orderStatus = "تم الطلب";
     }

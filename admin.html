@@ -208,7 +208,7 @@
             let html = '<div class="products-table-container"><table class="products-table"><thead><tr><th>الصورة</th><th>الاسم</th><th>السعر</th><th>التصنيف</th><th>إجراءات</th></tr></thead><tbody>';
             for (let i = 0; i < products.length; i++) {
                 const p = products[i];
-                let imgHtml = p.imageData ? '<img src="' + p.imageData + '" class="product-thumb">' : '<div class="product-thumb" style="display:flex;align-items:center;justify-content:center;font-size:1.8rem;">' + (p.image || '📦') + '</div>';
+                let imgHtml = p.imageData ? `<img src="${p.imageData}" class="product-thumb">` : '<div class="product-thumb" style="display:flex;align-items:center;justify-content:center;font-size:1.8rem;">' + (p.image || '📦') + '</div>';
                 html += '<tr>';
                 html += '<td>' + imgHtml + '</td>';
                 html += '<td style="font-weight:600; text-align:right;">' + escapeHtml(p.name) + '</td>';
@@ -242,84 +242,6 @@
             container.innerHTML = html;
         }
         
-        function openAddCategoryModal() {
-            document.getElementById("categoryModalTitle").innerHTML = "🏷️ إضافة صنف جديد";
-            document.getElementById("editCategoryId").value = "";
-            document.getElementById("categoryName").value = "";
-            document.getElementById("categoryIcon").value = "";
-            document.getElementById("categoryId").value = "";
-            document.getElementById("categoryModal").classList.add("active");
-        }
-        
-        function editCategory(id) {
-            const cat = categories.find(c => c.id === id);
-            if (!cat) return;
-            document.getElementById("categoryModalTitle").innerHTML = "✏️ تعديل صنف";
-            document.getElementById("editCategoryId").value = cat.id;
-            document.getElementById("categoryName").value = cat.name;
-            document.getElementById("categoryIcon").value = cat.icon;
-            document.getElementById("categoryId").value = cat.id;
-            document.getElementById("categoryModal").classList.add("active");
-        }
-        
-        function saveCategory() {
-            const editId = document.getElementById("editCategoryId").value;
-            const name = document.getElementById("categoryName").value.trim();
-            const icon = document.getElementById("categoryIcon").value.trim();
-            let categoryId = document.getElementById("categoryId").value.trim();
-            
-            if (!name) { showToast("يرجى إدخال اسم الصنف", "error"); return; }
-            if (!icon) { showToast("يرجى إدخال أيقونة الصنف", "error"); return; }
-            
-            if (!categoryId) {
-                categoryId = name.replace(/\s/g, '_').toLowerCase();
-            }
-            
-            if (editId) {
-                const index = categories.findIndex(c => c.id === editId);
-                if (index !== -1) {
-                    const oldId = categories[index].id;
-                    categories[index] = { id: categoryId, name, icon };
-                    if (oldId !== categoryId) {
-                        for (let j = 0; j < products.length; j++) {
-                            if (products[j].category === oldId) products[j].category = categoryId;
-                        }
-                        saveData();
-                    }
-                }
-                showToast("تم تحديث الصنف", "success");
-            } else {
-                if (categories.find(c => c.id === categoryId)) {
-                    showToast("هذا المعرف موجود بالفعل", "error");
-                    return;
-                }
-                categories.push({ id: categoryId, name, icon });
-                showToast("تم إضافة الصنف", "success");
-            }
-            saveCategories();
-            renderCategoriesTable();
-            renderProductsTable();
-            updateStats();
-            closeModal('categoryModal');
-        }
-        
-        function deleteCategory(id) {
-            let productsCount = 0;
-            for (let i = 0; i < products.length; i++) {
-                if (products[i].category === id) productsCount++;
-            }
-            if (productsCount > 0) {
-                showToast("لا يمكن حذف هذا الصنف لأنه مستخدم في " + productsCount + " منتج", "error");
-                return;
-            }
-            if (!confirm("هل أنت متأكد من حذف هذا الصنف؟")) return;
-            categories = categories.filter(c => c.id !== id);
-            saveCategories();
-            renderCategoriesTable();
-            updateStats();
-            showToast("تم حذف الصنف", "success");
-        }
-        
         function renderOrdersTable() {
             const container = document.getElementById("ordersTable");
             if (orders.length === 0) { 
@@ -335,7 +257,9 @@
                 else if (o.status === 'قيد التجهيز') { statusClass = 'status-processing'; statusIcon = 'fa-gears'; }
                 else { statusClass = 'status-delivered'; statusIcon = 'fa-check-circle'; }
                 
-                const mapLink = o.gpsLat && o.gpsLng ? '<a href="https://www.google.com/maps?q=' + o.gpsLat + ',' + o.gpsLng + '" target="_blank" class="map-link"><i class="fas fa-map-marked-alt"></i> عرض</a>' : (o.address ? '<span style="color:#9b897a;"><i class="fas fa-location-dot"></i> ' + escapeHtml(o.address.substring(0, 30)) + '...</span>' : '-');
+                const mapLink = (o.gpsLat && o.gpsLng) ? 
+                    `<a href="https://www.google.com/maps?q=${o.gpsLat},${o.gpsLng}" target="_blank" class="map-link"><i class="fas fa-map-marked-alt"></i> عرض</a>` : 
+                    (o.address ? '<span style="color:#9b897a;"><i class="fas fa-location-dot"></i> تم التوصيل للعنوان المدخل</span>' : '-');
                 
                 html += '<tr>';
                 html += '<td style="font-weight:600;">' + escapeHtml(o.customerName) + '</td>';
@@ -355,10 +279,7 @@
         
         function renderReviewsTable() {
             const container = document.getElementById("reviewsTable");
-            const pending = [];
-            for (let i = 0; i < reviews.length; i++) {
-                if (reviews[i].status === 'pending') pending.push(reviews[i]);
-            }
+            const pending = reviews.filter(r => r.status === 'pending');
             if (pending.length === 0) { container.innerHTML = "<div style='text-align:center;padding:40px;'>لا توجد تقييمات معلقة</div>"; return; }
             let html = '<div class="reviews-table"><table><thead><tr><th>العميل</th><th>التقييم</th><th>التعليق</th><th>إجراءات</th></tr></thead><tbody>';
             for (let i = 0; i < pending.length; i++) {
@@ -372,7 +293,7 @@
                 html += '<td><button class="btn-sm btn-success" onclick="approveReview(' + r.id + ')">✅ قبول</button><button class="btn-sm btn-danger" onclick="rejectReview(' + r.id + ')">❌ رفض</button></td>';
                 html += '</tr>';
             }
-            html += '</tbody></table></div>';
+            html += '</tbody></tr></div>';
             container.innerHTML = html;
         }
         
@@ -491,25 +412,96 @@
             showToast("تم حذف المنتج", "success");
         }
         
-        const tabs = document.querySelectorAll(".admin-tab");
-        for (let i = 0; i < tabs.length; i++) {
-            const tab = tabs[i];
-            tab.addEventListener("click", function() {
-                for (let j = 0; j < tabs.length; j++) {
-                    tabs[j].classList.remove("active");
+        function openAddCategoryModal() {
+            document.getElementById("categoryModalTitle").innerHTML = "🏷️ إضافة صنف جديد";
+            document.getElementById("editCategoryId").value = "";
+            document.getElementById("categoryName").value = "";
+            document.getElementById("categoryIcon").value = "";
+            document.getElementById("categoryId").value = "";
+            document.getElementById("categoryModal").classList.add("active");
+        }
+        
+        function editCategory(id) {
+            const cat = categories.find(c => c.id === id);
+            if (!cat) return;
+            document.getElementById("categoryModalTitle").innerHTML = "✏️ تعديل صنف";
+            document.getElementById("editCategoryId").value = cat.id;
+            document.getElementById("categoryName").value = cat.name;
+            document.getElementById("categoryIcon").value = cat.icon;
+            document.getElementById("categoryId").value = cat.id;
+            document.getElementById("categoryModal").classList.add("active");
+        }
+        
+        function saveCategory() {
+            const editId = document.getElementById("editCategoryId").value;
+            const name = document.getElementById("categoryName").value.trim();
+            const icon = document.getElementById("categoryIcon").value.trim();
+            let categoryId = document.getElementById("categoryId").value.trim();
+            
+            if (!name) { showToast("يرجى إدخال اسم الصنف", "error"); return; }
+            if (!icon) { showToast("يرجى إدخال أيقونة الصنف", "error"); return; }
+            
+            if (!categoryId) {
+                categoryId = name.replace(/\s/g, '_').toLowerCase();
+            }
+            
+            if (editId) {
+                const index = categories.findIndex(c => c.id === editId);
+                if (index !== -1) {
+                    const oldId = categories[index].id;
+                    categories[index] = { id: categoryId, name, icon };
+                    if (oldId !== categoryId) {
+                        for (let j = 0; j < products.length; j++) {
+                            if (products[j].category === oldId) products[j].category = categoryId;
+                        }
+                        saveData();
+                    }
                 }
-                const contents = document.querySelectorAll(".admin-content");
-                for (let j = 0; j < contents.length; j++) {
-                    contents[j].classList.remove("active");
+                showToast("تم تحديث الصنف", "success");
+            } else {
+                if (categories.find(c => c.id === categoryId)) {
+                    showToast("هذا المعرف موجود بالفعل", "error");
+                    return;
                 }
+                categories.push({ id: categoryId, name, icon });
+                showToast("تم إضافة الصنف", "success");
+            }
+            saveCategories();
+            renderCategoriesTable();
+            renderProductsTable();
+            updateStats();
+            closeModal('categoryModal');
+        }
+        
+        function deleteCategory(id) {
+            let productsCount = 0;
+            for (let i = 0; i < products.length; i++) {
+                if (products[i].category === id) productsCount++;
+            }
+            if (productsCount > 0) {
+                showToast("لا يمكن حذف هذا الصنف لأنه مستخدم في " + productsCount + " منتج", "error");
+                return;
+            }
+            if (!confirm("هل أنت متأكد من حذف هذا الصنف؟")) return;
+            categories = categories.filter(c => c.id !== id);
+            saveCategories();
+            renderCategoriesTable();
+            updateStats();
+            showToast("تم حذف الصنف", "success");
+        }
+        
+        document.querySelectorAll(".admin-tab").forEach(tab => {
+            tab.addEventListener("click", () => {
+                document.querySelectorAll(".admin-tab").forEach(t => t.classList.remove("active"));
+                document.querySelectorAll(".admin-content").forEach(c => c.classList.remove("active"));
                 tab.classList.add("active");
-                document.getElementById("tab-" + tab.dataset.tab).classList.add("active");
+                document.getElementById(`tab-${tab.dataset.tab}`).classList.add("active");
                 if (tab.dataset.tab === "orders") renderOrdersTable();
                 if (tab.dataset.tab === "reviews") renderReviewsTable();
                 if (tab.dataset.tab === "products") renderProductsTable();
                 if (tab.dataset.tab === "categories") renderCategoriesTable();
             });
-        }
+        });
         
         loadAdminData();
         updateCategorySelect();
